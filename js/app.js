@@ -203,38 +203,213 @@ function renderProducts(storeId) {
     return;
   }
 
-  productsContainer.innerHTML = `
+  // Group products by category
+  const categories = DB.getProductCategoriesForStore(storeId);
+
+  // Build categorized HTML
+  let categorizedHTML = `
     <div class="section-header">
       <h2 class="section-title">${store.name}</h2>
       <p class="section-subtitle">${store.category}</p>
     </div>
-    <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
-      ${products.map(product => `
-        <div class="product-card">
-          <img src="${product.imageUrl}" alt="${product.name}" class="product-card-image" loading="lazy">
-          <div class="product-card-body">
-            <h3 class="product-card-title">${product.name}</h3>
-            <div class="product-card-price">Rs. ${product.price.toLocaleString()}</div>
-            <button class="btn btn-primary btn-full add-to-cart-btn" 
-                    data-product-id="${product.id}">
-              Add to Cart
-            </button>
-          </div>
-        </div>
-      `).join('')}
-    </div>
   `;
 
-  // Attach click handlers to add to cart buttons
+  if (categories.length === 0) {
+    // Brookie store - no categories, flat display
+    categorizedHTML += `
+      <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
+        ${products.map(product => renderProductCard(product)).join('')}
+      </div>
+    `;
+  } else {
+    // ONE Bite store - categorized display
+    categories.forEach(category => {
+      const categoryProducts = DB.getProductsByCategoryAndStore(storeId, category);
+
+      categorizedHTML += `
+        <div class="category-section">
+          <h3 class="category-header">${category}</h3>
+          <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
+            ${categoryProducts.map(product => renderProductCard(product)).join('')}
+          </div>
+        </div>
+      `;
+    });
+  }
+
+  productsContainer.innerHTML = categorizedHTML;
+
+  // Attach click handlers
+  attachProductCardHandlers();
+}
+
+// Render a single product card
+function renderProductCard(product) {
+  if (product.hasVariations) {
+    // Product with variations - show "From" price and "Select Options" button
+    const minPrice = Math.min(...product.variations.map(v => v.price));
+    return `
+      <div class="product-card">
+        <img src="${product.imageUrl}" alt="${product.name}" class="product-card-image" loading="lazy">
+        <div class="product-card-body">
+          <h3 class="product-card-title">${product.name}</h3>
+          <div class="product-card-price">From Rs. ${minPrice.toLocaleString()}</div>
+          <button class="btn btn-primary btn-full select-options-btn" 
+                  data-product-id="${product.id}">
+            Select Options
+          </button>
+        </div>
+      </div>
+    `;
+  } else {
+    // Simple product - show direct "Add to Cart" button
+    return `
+      <div class="product-card">
+        <img src="${product.imageUrl}" alt="${product.name}" class="product-card-image" loading="lazy">
+        <div class="product-card-body">
+          <h3 class="product-card-title">${product.name}</h3>
+          <div class="product-card-price">Rs. ${product.price.toLocaleString()}</div>
+          <button class="btn btn-primary btn-full add-to-cart-btn" 
+                  data-product-id="${product.id}">
+            Add to Cart
+          </button>
+        </div>
+      </div>
+    `;
+  }
+}
+
+// Attach event handlers to product cards
+function attachProductCardHandlers() {
+  // Handle "Add to Cart" for simple products
   document.querySelectorAll('.add-to-cart-btn').forEach(btn => {
     btn.addEventListener('click', () => {
       const productId = parseInt(btn.dataset.productId);
       handleAddToCart(productId);
     });
   });
+
+  // Handle "Select Options" for products with variations
+  document.querySelectorAll('.select-options-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const productId = parseInt(btn.dataset.productId);
+      showVariationModal(productId);
+    });
+  });
 }
 
-// Handle Add to Cart
+// Show variation selection modal
+function showVariationModal(productId) {
+  const product = DB.getProductById(productId);
+  if (!product || !product.hasVariations) return;
+
+  // Create modal
+  const modal = document.createElement('div');
+  modal.className = 'modal-overlay';
+  modal.id = 'variation-modal';
+
+  // Default to first variation
+  let selectedVariationId = product.variations[0].id;
+  let selectedPrice = product.variations[0].price;
+
+  modal.innerHTML = `
+    <div class="modal variation-modal">
+      <div class="modal-header">
+        <h2 class="modal-title">Select Size</h2>
+        <button class="modal-close" id="close-variation-modal">×</button>
+      </div>
+      <div class="modal-body">
+        <div class="variation-product-info">
+          <img src="${product.imageUrl}" alt="${product.name}" class="variation-product-image">
+          <h3 class="variation-product-name">${product.name}</h3>
+        </div>
+        <div class="variation-options">
+          ${product.variations.map((variation, index) => `
+            <label class="variation-option ${index === 0 ? 'selected' : ''}">
+              <input type="radio" 
+                     name="variation" 
+                     value="${variation.id}" 
+                     data-price="${variation.price}"
+                     ${index === 0 ? 'checked' : ''}>
+              <div class="variation-option-content">
+                <span class="variation-size">${variation.size}</span>
+                <span class="variation-price">Rs. ${variation.price.toLocaleString()}</span>
+              </div>
+            </label>
+          `).join('')}
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-primary btn-full" id="add-variation-to-cart">
+          Add to Cart - Rs. ${selectedPrice.toLocaleString()}
+        </button>
+      </div>
+    </div>
+  `;
+
+  document.body.appendChild(modal);
+
+  // Get elements
+  const addBtn = modal.querySelector('#add-variation-to-cart');
+  const closeBtn = modal.querySelector('#close-variation-modal');
+  const radioButtons = modal.querySelectorAll('input[type="radio"]');
+  const optionLabels = modal.querySelectorAll('.variation-option');
+
+  // Handle variation selection
+  radioButtons.forEach((radio, index) => {
+    radio.addEventListener('change', () => {
+      selectedVariationId = parseInt(radio.value);
+      selectedPrice = parseInt(radio.dataset.price);
+      addBtn.textContent = `Add to Cart - Rs. ${selectedPrice.toLocaleString()}`;
+
+      // Update selected class
+      optionLabels.forEach(label => label.classList.remove('selected'));
+      optionLabels[index].classList.add('selected');
+    });
+  });
+
+  // Handle add to cart
+  addBtn.addEventListener('click', () => {
+    handleAddToCartWithVariation(product, selectedVariationId);
+    document.body.removeChild(modal);
+  });
+
+  // Handle close
+  closeBtn.addEventListener('click', () => {
+    document.body.removeChild(modal);
+  });
+
+  // Close on overlay click
+  modal.addEventListener('click', (e) => {
+    if (e.target === modal) {
+      document.body.removeChild(modal);
+    }
+  });
+}
+
+// Handle Add to Cart with Variation
+function handleAddToCartWithVariation(product, variationId) {
+  const variation = product.variations.find(v => v.id === variationId);
+  if (!variation) return;
+
+  // Create cart item with variation info
+  const cartItem = {
+    id: variationId, // Use variation ID as cart item ID
+    productId: product.id,
+    storeId: product.storeId,
+    name: product.name,
+    variation: variation.size,
+    price: variation.price,
+    imageUrl: product.imageUrl,
+    category: product.category
+  };
+
+  addToCart(cartItem);
+  updateCartBadge();
+  showToast(`${product.name} (${variation.size}) added to cart!`);
+}
+
+// Handle Add to Cart (for simple products without variations)
 function handleAddToCart(productId) {
   const product = DB.getProductById(productId);
   if (!product) return;
@@ -297,7 +472,7 @@ function renderCart() {
         <div class="cart-item">
           <img src="${item.imageUrl}" alt="${item.name}" class="cart-item-image" loading="lazy">
           <div class="cart-item-details">
-            <h4 class="cart-item-title">${item.name}</h4>
+            <h4 class="cart-item-title">${item.name}${item.variation ? ` - ${item.variation}` : ''}</h4>
             <div class="cart-item-price">Rs. ${item.price.toLocaleString()} each</div>
           </div>
           <div class="cart-item-actions">
@@ -396,14 +571,15 @@ async function handleCheckout(e) {
     const primaryStoreId = parseInt(storeIds[0]);
     const store = DB.getStoreById(primaryStoreId);
 
-    // Prepare order data
+    // Prepare order data with complete store details
     const orderData = {
       customerName,
       customerEmail,
       location,
       items: cart,
       total,
-      storeName: store.name
+      store: store,  // Pass complete store object for email details
+      storeName: store.name  // Keep for backward compatibility
     };
 
     // Send emails
@@ -442,17 +618,26 @@ async function handleCheckout(e) {
 
 // Create WhatsApp Message
 function createWhatsAppMessage(orderData, store) {
-  let message = `*New Order from NearBuy*\\n\\n`;
-  message += `*Customer:* ${orderData.customerName}\\n`;
-  message += `*Location:* ${orderData.location}\\n`;
-  message += `*Email:* ${orderData.customerEmail}\\n\\n`;
-  message += `*Order Details:*\\n`;
+  let message = `🔔 *NEW ORDER RECEIVED*\\n`;
+  message += `━━━━━━━━━━━━━━━━━━━━\\n\\n`;
 
+  message += `📦 *ORDER SUMMARY*\\n`;
   orderData.items.forEach(item => {
-    message += `• ${item.name} x ${item.quantity} - Rs. ${(item.price * item.quantity).toLocaleString()}\\n`;
+    const itemName = item.variation ? `${item.name} (${item.variation})` : item.name;
+    message += `   • ${itemName}\\n`;
+    message += `      Qty: ${item.quantity} × Rs. ${item.price.toLocaleString()} = Rs. ${(item.price * item.quantity).toLocaleString()}\\n`;
   });
 
-  message += `\\n*Total: Rs. ${orderData.total.toLocaleString()}*`;
+  message += `\\n💰 *TOTAL AMOUNT: Rs. ${orderData.total.toLocaleString()}*\\n\\n`;
+
+  message += `👤 *CUSTOMER INFORMATION*\\n`;
+  message += `   Name: ${orderData.customerName}\\n`;
+  message += `   Location: ${orderData.location}\\n`;
+  message += `   Email: ${orderData.customerEmail}\\n\\n`;
+
+  message += `━━━━━━━━━━━━━━━━━━━━\\n`;
+  message += `📱 Ordered via NearBuy Platform\\n`;
+  message += `⏰ Please confirm this order at your earliest convenience.`;
 
   return encodeURIComponent(message);
 }

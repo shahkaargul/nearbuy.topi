@@ -57,22 +57,37 @@ export async function sendCustomerEmail(orderData) {
 export async function sendAdminEmail(orderData) {
     try {
         const commission = orderData.total * 0.10;
+        const commissionRate = '10%';
 
         const templateParams = {
-            store_name: orderData.storeName,
+            // Platform Branding
+            platform_name: 'NearBuy',
+
+            // Store Details
+            store_name: orderData.store.name,
+            store_category: orderData.store.category,
+            store_whatsapp: orderData.store.whatsappNumber,
+
+            // Customer Information
             customer_name: orderData.customerName,
             customer_email: orderData.customerEmail,
             customer_location: orderData.location,
-            order_items: formatOrderItems(orderData.items),
-            order_total: `Rs. ${orderData.total.toLocaleString()}`,
-            commission_amount: `Rs. ${commission.toLocaleString()}`,
+
+            // Order Details
+            order_items: formatOrderItemsDetailed(orderData.items),
             order_date: new Date().toLocaleDateString('en-US', {
                 year: 'numeric',
                 month: 'long',
                 day: 'numeric',
                 hour: '2-digit',
                 minute: '2-digit'
-            })
+            }),
+
+            // Financial Summary
+            order_subtotal: `Rs. ${orderData.total.toLocaleString()}`,
+            order_total: `Rs. ${orderData.total.toLocaleString()}`,
+            commission_rate: commissionRate,
+            commission_amount: `Rs. ${commission.toLocaleString()}`
         };
 
         const response = await emailjs.send(
@@ -89,11 +104,21 @@ export async function sendAdminEmail(orderData) {
     }
 }
 
-// Format order items for email
+// Format order items for email (customer-facing)
 function formatOrderItems(items) {
     return items.map(item =>
         `${item.name} x ${item.quantity} - Rs. ${(item.price * item.quantity).toLocaleString()}`
     ).join('\n');
+}
+
+// Format order items with detailed information (admin-facing)
+function formatOrderItemsDetailed(items) {
+    return items.map(item => {
+        const itemName = item.variation ? `${item.name} (${item.variation})` : item.name;
+        const itemPrice = `Rs. ${item.price.toLocaleString()}`;
+        const itemTotal = `Rs. ${(item.price * item.quantity).toLocaleString()}`;
+        return `${itemName} x ${item.quantity} @ ${itemPrice} each = ${itemTotal}`;
+    }).join('\n');
 }
 
 // Send both emails concurrently
