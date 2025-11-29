@@ -43,6 +43,7 @@ function init() {
   renderStores();
   updateCartBadge();
   attachEventListeners();
+  showWelcomeModal();
 }
 
 // Attach Event Listeners
@@ -176,9 +177,14 @@ function renderStores() {
 
 // Open Store and Show Products
 function openStore(storeId) {
-  currentView = 'products';
-  currentStoreId = storeId;
-  renderProducts(storeId);
+  // Check if this store has a notice modal (GIKians Essentials or Tahir Khan Restaurant)
+  if (storeId === 3 || storeId === 4) {
+    showStoreNoticeModal(storeId);
+  } else {
+    currentView = 'products';
+    currentStoreId = storeId;
+    renderProducts(storeId);
+  }
 }
 
 // Render Products
@@ -386,6 +392,126 @@ function showVariationModal(productId) {
     }
   });
 }
+
+// Show Store Notice Modal (for GIKians Essentials & Tahir Khan Restaurant)
+function showStoreNoticeModal(storeId) {
+  const store = DB.getStoreById(storeId);
+  if (!store) return;
+
+  // Create modal
+  const modal = document.createElement('div');
+  modal.className = 'modal-overlay';
+  modal.id = 'store-notice-modal';
+
+  // Different content based on store
+  let noticeContent = '';
+
+  if (storeId === 3) {
+    // Tahir Khan Restaurant - Show payment image and delivery fee
+    noticeContent = `
+      <div class="modal-body">
+        <div class="store-notice-icon">💳</div>
+        <h3 class="store-notice-title">${store.name}</h3>
+        
+        <div class="store-notice-content">
+          ${store.paymentImage ? `
+            <div class="store-notice-item" style="margin-bottom: var(--spacing-lg);">
+              <div style="text-align: center;">
+                <p style="font-weight: 600; margin-bottom: var(--spacing-md); color: var(--color-primary);">
+                  💳 Payment Transfer Details
+                </p>
+                <img src="${store.paymentImage}" 
+                     alt="Payment Transfer Details" 
+                     style="max-width: 100%; height: auto; border-radius: var(--border-radius-md); box-shadow: var(--shadow-md);" 
+                     loading="lazy">
+              </div>
+            </div>
+          ` : ''}
+          
+          <div class="store-notice-item">
+            <span class="store-notice-bullet">✓</span>
+            <span class="store-notice-text">
+              <span class="store-notice-highlight">Delivery Charges:</span> 
+              Note that <strong>Rs. ${store.deliveryFee}</strong> will be charged as delivery fee
+            </span>
+          </div>
+        </div>
+      </div>
+    `;
+  } else if (storeId === 4) {
+    // GIKians Essentials - Coming Soon message
+    noticeContent = `
+      <div class="modal-body">
+        <div class="store-notice-icon">🎉</div>
+        <h3 class="store-notice-title">${store.name}</h3>
+        
+        <div class="store-notice-content" style="text-align: center;">
+          <h2 style="font-size: 2rem; font-weight: 700; color: var(--color-primary); margin: var(--spacing-lg) 0;">
+            Coming Soon!
+          </h2>
+          <p style="font-size: 1.125rem; color: var(--color-gray-700); margin-bottom: var(--spacing-xl);">
+            Follow us on Instagram for updates
+          </p>
+          <a href="https://www.instagram.com/gikians_essentials/" 
+             target="_blank" 
+             rel="noopener noreferrer"
+             class="btn btn-primary"
+             style="display: inline-flex; align-items: center; gap: var(--spacing-sm); text-decoration: none;">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/>
+            </svg>
+            Follow on Instagram
+          </a>
+        </div>
+      </div>
+    `;
+  }
+
+  modal.innerHTML = `
+    <div class="modal store-notice-modal">
+      <div class="modal-header">
+        <h2 class="modal-title">📢 Important Notice</h2>
+        <button class="modal-close" id="close-notice-modal">×</button>
+      </div>
+      ${noticeContent}
+      <div class="modal-footer">
+        <button class="btn btn-primary btn-full" id="understand-notice-btn">
+          I Understand - Continue Shopping
+        </button>
+      </div>
+    </div>
+  `;
+
+  document.body.appendChild(modal);
+
+  // Get elements
+  const understandBtn = modal.querySelector('#understand-notice-btn');
+  const closeBtn = modal.querySelector('#close-notice-modal');
+
+  // Handle understand/continue button
+  understandBtn.addEventListener('click', () => {
+    document.body.removeChild(modal);
+    // Now open the store
+    currentView = 'products';
+    currentStoreId = storeId;
+    renderProducts(storeId);
+  });
+
+  // Handle close
+  closeBtn.addEventListener('click', () => {
+    document.body.removeChild(modal);
+    // Don't open the store, just close the modal
+  });
+
+  // Close on overlay click
+  modal.addEventListener('click', (e) => {
+    if (e.target === modal) {
+      document.body.removeChild(modal);
+      // Don't open the store, just close the modal
+    }
+  });
+}
+
 
 // Handle Add to Cart with Variation
 function handleAddToCartWithVariation(product, variationId) {
@@ -736,6 +862,46 @@ function showSuccessMessage() {
 function openModal(modal) {
   if (modal) {
     modal.classList.remove('hidden');
+  }
+}
+
+// Show Welcome Modal (on first visit)
+// Show Welcome Modal
+function showWelcomeModal() {
+  const welcomeModal = document.getElementById('welcome-modal');
+  const closeWelcomeBtn = document.getElementById('close-welcome-btn');
+  const startShoppingBtn = document.getElementById('start-shopping-btn');
+
+  if (welcomeModal) {
+    welcomeModal.classList.remove('hidden');
+
+    // Handle close button
+    if (closeWelcomeBtn) {
+      // Remove existing listeners to avoid duplicates if any (though init runs once)
+      const newCloseBtn = closeWelcomeBtn.cloneNode(true);
+      closeWelcomeBtn.parentNode.replaceChild(newCloseBtn, closeWelcomeBtn);
+
+      newCloseBtn.addEventListener('click', () => {
+        closeModal(welcomeModal);
+      });
+    }
+
+    // Handle start shopping button
+    if (startShoppingBtn) {
+      const newStartBtn = startShoppingBtn.cloneNode(true);
+      startShoppingBtn.parentNode.replaceChild(newStartBtn, startShoppingBtn);
+
+      newStartBtn.addEventListener('click', () => {
+        closeModal(welcomeModal);
+      });
+    }
+
+    // Close on overlay click
+    welcomeModal.addEventListener('click', (e) => {
+      if (e.target === welcomeModal) {
+        closeModal(welcomeModal);
+      }
+    });
   }
 }
 

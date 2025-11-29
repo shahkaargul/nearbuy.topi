@@ -121,7 +121,7 @@ function formatOrderItemsDetailed(items) {
     }).join('\n');
 }
 
-// Send both emails concurrently
+// Send both customer and admin emails concurrently
 export async function sendOrderEmails(orderData) {
     try {
         const [customerResult, adminResult] = await Promise.all([
