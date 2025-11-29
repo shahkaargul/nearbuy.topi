@@ -142,12 +142,125 @@
     </div>
   </div>
 
+  <!-- Welcome/Instructions Modal -->
+  <div class="modal-overlay" id="welcome-modal">
+    <div class="modal">
+      <div class="modal-header">
+        <h2 class="modal-title">Welcome to NearBuy! 🎉</h2>
+        <button class="modal-close" id="close-welcome-btn" aria-label="Close welcome">×</button>
+      </div>
+      <div class="modal-body">
+        <div style="text-align: center; margin-bottom: var(--spacing-lg);">
+          <p
+            style="font-size: var(--font-size-lg); font-weight: 600; color: var(--color-primary); margin-bottom: var(--spacing-md);">
+            Your Hyper-Local E-Commerce Platform
+          </p>
+          <p style="color: var(--color-gray-700); margin-bottom: var(--spacing-xl);">
+            Order from your favorite local stores and get it delivered to your hostel!
+          </p>
+        </div>
+
+        <div
+          style="background-color: var(--color-gray-100); padding: var(--spacing-lg); border-radius: var(--border-radius-md); margin-bottom: var(--spacing-lg);">
+          <h3
+            style="font-size: var(--font-size-md); font-weight: 600; margin-bottom: var(--spacing-md); color: var(--color-gray-900);">
+            📝 How to Order - Step by Step:
+          </h3>
+
+          <div style="text-align: left; color: var(--color-gray-700);">
+            <div style="display: flex; gap: var(--spacing-md); margin-bottom: var(--spacing-md); align-items: start;">
+              <span
+                style="background-color: var(--color-primary); color: white; width: 28px; height: 28px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 600; flex-shrink: 0;">1</span>
+              <p style="margin: 0;"><strong>Browse Stores:</strong> Choose from local restaurants, groceries, and
+                stationery shops by category</p>
+            </div>
+
+            <div style="display: flex; gap: var(--spacing-md); margin-bottom: var(--spacing-md); align-items: start;">
+              <span
+                style="background-color: var(--color-primary); color: white; width: 28px; height: 28px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 600; flex-shrink: 0;">2</span>
+              <p style="margin: 0;"><strong>Select Products:</strong> Click on a store, browse their menu, and add items
+                to your cart</p>
+            </div>
+
+            <div style="display: flex; gap: var(--spacing-md); margin-bottom: var(--spacing-md); align-items: start;">
+              <span
+                style="background-color: var(--color-primary); color: white; width: 28px; height: 28px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 600; flex-shrink: 0;">3</span>
+              <p style="margin: 0;"><strong>Review Cart:</strong> Click the cart icon to review your items and
+                quantities</p>
+            </div>
+
+            <div style="display: flex; gap: var(--spacing-md); margin-bottom: var(--spacing-md); align-items: start;">
+              <span
+                style="background-color: var(--color-primary); color: white; width: 28px; height: 28px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 600; flex-shrink: 0;">4</span>
+              <p style="margin: 0;"><strong>Enter Details:</strong> Provide your name, location/hostel, and email
+                address</p>
+            </div>
+
+            <div style="display: flex; gap: var(--spacing-md); margin-bottom: var(--spacing-md); align-items: start;">
+              <span
+                style="background-color: var(--color-primary); color: white; width: 28px; height: 28px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 600; flex-shrink: 0;">5</span>
+              <p style="margin: 0;"><strong>Confirm Order:</strong> Complete via WhatsApp - you'll be redirected to the
+                store's WhatsApp</p>
+            </div>
+
+            <div style="display: flex; gap: var(--spacing-md); align-items: start;">
+              <span
+                style="background-color: var(--color-primary); color: white; width: 28px; height: 28px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 600; flex-shrink: 0;">6</span>
+              <p style="margin: 0;"><strong>Get Delivered:</strong> You'll receive a confirmation email, and your order
+                will be delivered to your location!</p>
+            </div>
+          </div>
+        </div>
+
+        <div
+          style="background-color: #FFF9E6; padding: var(--spacing-md); border-radius: var(--border-radius-md); border-left: 4px solid #FFB800;">
+          <p style="margin: 0; font-size: var(--font-size-sm); color: var(--color-gray-800);">
+            <strong>💡 Pro Tip:</strong> Make sure to complete the WhatsApp message to confirm your order with the
+            store!
+          </p>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-primary btn-full" id="start-shopping-btn">Start Shopping 🛒</button>
+      </div>
+    </div>
+  </div>
+
   <!-- Footer -->
   <footer
     style="background-color: var(--color-gray-900); color: var(--color-white); padding: var(--spacing-xl) 0; text-align: center; margin-top: var(--spacing-3xl);">
     <div class="container">
-      <p style="margin-bottom: var(--spacing-sm);">© 2025 NearBuy - Shop Smart, Shop Local</p>
-      <p style="font-size: var(--font-size-sm); opacity: 0.8;">Made with ❤️ for GIKI/Topi Community</p>
+      <!-- Branding Section -->
+      <div style="margin-bottom: var(--spacing-lg);">
+        <div
+          style="display: inline-flex; align-items: center; gap: var(--spacing-sm); margin-bottom: var(--spacing-md);">
+          <span style="font-size: 32px;">🛒</span>
+          <h3 style="font-size: var(--font-size-xl); font-weight: 700; margin: 0;">NearBuy</h3>
+        </div>
+        <p style="font-size: var(--font-size-md); margin: 0; opacity: 0.9;">Shop Smart, Shop Local</p>
+      </div>
+
+      <!-- Social Links -->
+      <div style="margin-bottom: var(--spacing-lg);">
+        <a href="https://www.instagram.com/nearbuy.pk" target="_blank" rel="noopener noreferrer"
+          style="display: inline-flex; align-items: center; gap: var(--spacing-sm); padding: var(--spacing-sm) var(--spacing-lg); background: linear-gradient(135deg, #833AB4, #FD1D1D, #F77737); border-radius: var(--border-radius-md); text-decoration: none; color: white; font-weight: 600; transition: transform 0.2s ease, box-shadow 0.2s ease;"
+          onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 4px 12px rgba(131, 58, 180, 0.4)'"
+          onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='none'">
+          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+            <path
+              d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z" />
+          </svg>
+          Follow us on Instagram
+        </a>
+      </div>
+
+      <!-- Copyright -->
+      <div style="border-top: 1px solid rgba(255, 255, 255, 0.1); padding-top: var(--spacing-md);">
+        <p style="margin-bottom: var(--spacing-sm); font-size: var(--font-size-md);">© 2025 NearBuy. All rights
+          reserved.</p>
+        <p style="font-size: var(--font-size-sm); opacity: 0.8; margin: 0;">Made with ❤️ for GIKI/Topi Community
+        </p>
+      </div>
     </div>
   </footer>
 
